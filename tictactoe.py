@@ -86,8 +86,8 @@ def tictactoe_comp():
         ]
     ]
 
-    O = []
-    X = []
+    O = set()
+    X = set()
 
     window = sg.Window("TicTacToe", layout, element_justification="center")
     click=0
@@ -95,93 +95,32 @@ def tictactoe_comp():
         event, values = window.read()
         if event == sg.WINDOW_CLOSED:
             break
+
         elif event == "New game":
             window.close()
             tictactoe_comp()
+
         else:
-            # click += 1
-            # if click % 2 == 0:
-            #     symbol = " O "
-            #     turn = "X"
-            #     O.append(event)
-            #     # print(O)
-            #     # print("")
-            # else:
-            #     symbol = " X "
-            #     turn = "O"
-            #     X.append(event)
-            #     # print(X)
-            #     # print("")
-
             window.Element(event).update(chance, disabled=True)
-            X.append(event)
+            X.add(event)
             window.refresh()
-            check = win_check(X=set(X), O=set(O), window=window)
-            if check is False:
+            if win_check(X, window):
+                sg.popup("X won the game!")
 
-            # print(list(set(all_combos) - set(O) - set(X)))
+            elif len(remaining := set(all_combos) - set(O) - set(X)) != 0:
+                comp_choice = random.choice(list(remaining))
+                window.Element(comp_choice).update(" O ", disabled=True)
+                O.add(comp_choice)
+                window.refresh()
+                if win_check(O, window=window):
+                    sg.popup("O won the game!")
 
-                if len(list(set(all_combos) - set(O) - set(X))) != 0:
-                    comp_choice = random.choice(list(set(all_combos) - set(O) - set(X)))
-                    window.Element(comp_choice).update(" O ", disabled=True)
-                    O.append(comp_choice)
-                    window.refresh()
-                    check = win_check(X=set(X), O=set(O), window=window)
-                    # check = win_check(X=["a1", "b2", "c3"], O=["a2", "a3", "b3"], window=window)
-                    # print(X)
-                    # print(O)
-                    # print("")
-
-                else:
-                    print("error")
-                    check = win_check(X=set(X), O=set(O), window=window)
-                    # check = win_check(X=["a1", "b2", "c3"], O=["a2", "a3", "b3"], window=window)
-                    if check is False:
-                        sg.popup("Game tied")
-                    else:
-                        sg.popup("O won the game!")
+            else:
+                sg.popup("Game tied")
 
 
-
-
-
-
-# def win_check(X, O, window):
-#     print(f"{X}\n{O}")
-#     combos=[
-#         ["a1", "a2", "a3"],
-#         ["b1", "b2", "b3"],
-#         ["c1", "c2", "c3"],
-#         ["a1", "b1", "c1"],
-#         ["a2", "b2", "c2"],
-#         ["a3", "b3", "c3"],
-#         ["a1", "b2", "c3"],
-#         ["a3", "b2", "c1"]
-#     ]
-
-    # for combo in combos:
-    #     print("check 1")
-    #     if all(item in X for item in combo):
-    #         print("check 2a")
-    #         for i in all_combos:
-    #             window.Element(i).update(disabled=True)
-    #         window.refresh()
-    #         sg.popup("X won the game!")
-    #         return True
-    #     elif all(item in O for item in combo): # here      
-    #         print("check 2b")      
-    #         for i in all_combos:
-    #             window.Element(i).update(disabled=True)
-    #         window.refresh()
-    #         sg.popup("O won the game!")
-    #         return True
-    # print("check c")
-    # return False
-
-
-
-def win_check(X: set[str], O: set[str], window: sg.Window):
-    print(f"{X}\n{O}")
+def win_check(tiles: set[str], window: sg.Window):
+    print(f"{tiles}")
     combos=[
         {"a1", "a2", "a3"},
         {"b1", "b2", "b3"},
@@ -194,24 +133,11 @@ def win_check(X: set[str], O: set[str], window: sg.Window):
     ]
 
     for combo in combos:
-        print("check 1")
-        if X.issuperset(combo):
-            print("check 2a")
+        if tiles.issuperset(combo):
             for i in all_combos:
                 window.Element(i).update(disabled=True)
             window.refresh()
-            sg.popup("X won the game!")
             return True
-        elif O.issuperset(combo): # here      
-            print("check 2b")      
-            for i in all_combos:
-                window.Element(i).update(disabled=True)
-            window.refresh()
-            sg.popup("O won the game!")
-            return True
-        else:
-            print("check c")
-
     return False
 
 
